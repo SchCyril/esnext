@@ -101,13 +101,13 @@ class TripService {
 
                 if (tripTrouve) {
                     resolve(tripTrouve + " " + "bien joue");
+                } else {
+                    reject(`no trip found with name ${tripName}`);
                 }
-            })
-            reject('No trip found');
 
-
-        }, 2000)
-    };
+            }, 2000)
+        });
+    }
 }
 
 
@@ -131,17 +131,20 @@ class PriceService {
         return new Promise((resolve, reject) => {
 
             setTimeout(() => {
-                for (let [id, price] of this.map) {
+                const price = this.prices.get(tripId);
 
-                    if (id === tripId) {
-                        resolve(price);
-                    }
+                if(price) {
+                    resolve(price);
+
+                }else {
+                    reject(`No price for trip id : ${tripId}`);
                 }
-                reject('No trip found so there is no price' + tripId);
             }, 2000)
         });
     }
 }
+
+
 
 let ts = new TripService();
 let ps = new PriceService();
@@ -161,19 +164,26 @@ let ps = new PriceService();
 // });
 
 
-ts.findByName('Rio de Janeiro').then(function (trip) {
-    return ps.findPriceByTripId(trip.name);
+ts.findByName('Rio de Janeiro')
+.then(trip => {
+    console.log('Yeah', trip);
+})
+.catch(err => {
+    console.log('oops', err)
+})
 
-}, function (error) {
-    console.log(error);
-}).then(function (price) {
-    console.log(price);
-}, function (error) {
-    console.log(error);
-});
+ps.findPriceByTripId('nantes')
+.then(price => console.log('yeah', price))
+.catch(err => console.log('oops', err))
 
-
-
-
-
-
+const tripName = 'Rio de Janeiro';
+ts.findByName(tripName)
+.then(trip => {
+    return ps.findPriceByTripId(tripId)
+})
+.then(price => {
+    console.log('Yeah', price)
+})
+.catch(err=> {
+    console.log('oops', err)
+})
